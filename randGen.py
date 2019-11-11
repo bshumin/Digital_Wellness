@@ -231,7 +231,7 @@ for i in range(patients):
     # create tuple for output
     qTuple = {"q1a": q1a,
               "q1b": q1b,
-              "q2": q2,
+              "q2":  q2,
               "q3a": q3a,
               "q3b": q3b,
               "q3c": q3c,
