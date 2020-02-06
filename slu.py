@@ -23,8 +23,8 @@ assistCred = {
   "url": "https://api.us-south.assistant.watson.cloud.ibm.com/instances/b5122f34-f675-4fcb-8116-3f3a86d11c82"
 }
 
-treeResponses = ['start', 'start', '73', '170', 'white']
-intentList = ['start', 'start', 'height', 'weight', 'race']
+treeResponses = ['start', 'start', '73', '170', 'white', 'good', '9', '03-19-2019', 'no', 'yes', 'no', 'no', 'no', 'no', 'no']
+intentList = ['start', 'start', 'height', 'weight', 'race', 'health_condition', 'sleep_hours', 'physical', 'no', 'yes', 'no', 'no', 'no', 'no', 'no']
 
 questionNumber = 0
 
@@ -39,18 +39,29 @@ class Interpret(fluteline.Consumer):
         global directory
         global questionNumber
         speech = ""
-        if 'results' in item and item['results'][0]['final'] is True: # changed '=' to 'is'
+        # if 'results' in item and item['results'][0]['final'] is True: # changed '=' to 'is'
+        if questionNumber < len(intentList):
             # speech = item['results'][0]['alternatives'][0]['transcript']
             speech = treeResponses[questionNumber]  # force speech to be expected response from list
+
             print("speech before NLP: " + speech)
             # speech = assistant(speech.lower().split())
             response = assistant(speech.lower())
 
             # print('Assistant spoken response: ' + response['output']['generic'][0]['text'])  # FIXME if added->error
             print('Interpreted user intent: ' + response['output']['intents'][0]['intent'])
+
+            if response['output']['generic'][0]['text'] == "":
+                speech = response['output']['generic'][1]['text']
+                print(response['output']['generic'][1]['text'])
+            else:
+                speech = response['output']['generic'][0]['text']
+                print(response['output']['generic'][0]['text'])
+
             if response['output']['intents'][0]['intent'].lower() == intentList[questionNumber].lower():
                 questionNumber += 1
-                print("Response matched assistant question")
+                # print("Response matched assistant question")
+                print("Question Number: " + str(questionNumber))
             print('-----------------------------------------')
             engine = pyttsx3.init()
             engine.say(speech)
@@ -82,10 +93,9 @@ def assistant(speech):
     if sessionCreated is False:
         session = assistant.create_session(assistant_id='cb4dacb9-085f-4a99-adfa-96e54d786f90').get_result()
         session_json = json.dumps(session)
-        print(session_json)
+        #print(session_json)
         session_key = (json.loads(session_json))
-        print(session_key["session_id"])
-        print('TRIGGERED IF STATEMENT')
+        #print(session_key["session_id"])
         sessionCreated = True
 
     response = assistant.message(
@@ -96,5 +106,5 @@ def assistant(speech):
              'text': speech
          }
     ).get_result()
-    print(json.dumps(response, indent=2))
+    # print(json.dumps(response, indent=2))
     return response
